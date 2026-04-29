@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Habit Tracker PWA
 
-## Getting Started
+A client-side habit tracker built with Next.js, React, TypeScript, and Tailwind CSS. Users can sign up, log in, create habits, mark daily completions, see streaks, and log out. App data is stored in browser storage for this stage of the project.
 
-First, run the development server:
+## Prerequisites
+
+- Node.js 20 or newer
+- npm
+
+## Install Dependencies
+
+```bash
+npm install
+```
+
+If you plan to run end-to-end tests locally, install the Playwright browser binaries:
+
+```bash
+npx playwright install
+```
+
+## Run the App
+
+Start the local development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+To run the production build locally:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run start
+```
 
-## Learn More
+## Run Tests
 
-To learn more about Next.js, take a look at the following resources:
+Run all tests:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm test
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Run only unit tests with coverage:
 
-## Deploy on Vercel
+```bash
+npm run test:unit
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Run only integration tests:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run test:integration
+```
+
+Run only end-to-end tests:
+
+```bash
+npm run test:e2e
+```
+
+The Playwright config builds and starts the app automatically before e2e tests. It uses http://localhost:3000 as the base URL and reuses an existing local server outside CI when one is already running.
+
+## Other Useful Commands
+
+```bash
+npm run lint
+npm run build
+```
+
+## Required Test Files
+
+| Test file | Type | What it verifies |
+| --- | --- | --- |
+| `tests/unit/habits.test.ts` | Unit | `toggleHabitCompletion` adds a missing completion date, removes an existing date, avoids mutating the original habit, and prevents duplicate completion dates. |
+| `tests/unit/slug.test.ts` | Unit | `getHabitSlug` lowercases habit names, trims and collapses spaces, hyphenates words, and removes unsupported characters. |
+| `tests/unit/streaks.test.ts` | Unit | `calculateCurrentStreak` handles empty completions, requires today to be completed, counts consecutive days, ignores duplicate dates, and stops when a day is missing. |
+| `tests/unit/validators.test.ts` | Unit | `validateHabitName` rejects blank names, enforces the 60-character limit, and returns a trimmed value for valid names. |
+| `tests/integration/auth-flow.test.tsx` | Integration | Signup creates a persisted session, duplicate signup emails show an error, login creates an active session, and invalid credentials show an error. |
+| `tests/integration/habit-form.test.tsx` | Integration | Habit form validation, creating habits, editing existing habits, confirmed deletion, and completion toggling with streak updates. |
+| `tests/e2e/app.spec.ts` | End-to-end | A full user path: splash screen, signup, dashboard access, habit creation, marking a habit complete, streak display, and logout redirect. |
+| `tests/setup.ts` | Test setup | Loads `@testing-library/jest-dom` matchers for Vitest and React Testing Library assertions. |
+
+## Coverage
+
+Unit tests run with V8 coverage enabled through `vitest.config.ts`. Coverage is collected for `src/lib/**`, excludes `src/lib/storage.ts`, and requires at least 80% line coverage.
+
+## Assumptions and Trade-offs
+
+- Authentication is intentionally local-only. Users, sessions, and habits are stored in `localStorage` or `sessionStorage`; there is no backend, password hashing, or server-side session validation.
+- Habit frequency is currently fixed to `daily`, matching the available streak logic and UI behavior.
+- The PWA service worker is registered from `/sw.js` when supported by the browser.
+- Unit coverage focuses on pure logic in `src/lib/**`; storage is excluded because it depends directly on browser storage APIs.
+- Integration tests use jsdom and mocked navigation/storage boundaries where needed instead of a real browser.
+- E2E coverage uses Chromium only, which keeps the test suite faster but does not prove behavior across every browser engine.
