@@ -17,6 +17,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "devDependencies": {
     "@playwright/test": "^1.53.2",
     "@tailwindcss/postcss": "^4",
@@ -28,7 +31,6 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4.4.1",
-    "@vitejs/plugin-react-oxc": "^0.4.3",
     "@vitest/coverage-v8": "^4.1.5",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
