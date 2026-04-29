@@ -29,7 +29,7 @@ export function calculateCurrentStreak(
   if (!uniqueCompletions.includes(todayStr)) return 0;
 
   let streak = 1;
-  let prevDay = new Date(todayStr + "T00:00:00Z");
+  const prevDay = new Date(todayStr + "T00:00:00Z");
   prevDay.setUTCDate(prevDay.getUTCDate() - 1);
 
   while (true) {

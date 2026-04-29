@@ -13,12 +13,12 @@ export default function LoginForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const user = findUserByEmail(email);
+    const user = findUserByEmail(email.trim().toLowerCase());
     if (!user || user.password !== password) {
       setError("Invalid email or password");
       return;
     }
-    saveSession({ userId: user.id, email: user.email });
+    saveSession({ userId: user.id, email: user.email }, persist);
     router.push("/dashboard");
   };
 
@@ -91,6 +91,7 @@ export default function LoginForm() {
         <input
           type="checkbox"
           checked={persist}
+          data-testid="auth-login-persist"
           onChange={(e) => setPersist(e.target.checked)}
           className="w-4 h-4 rounded border-gray-300 text-blue-600 accent-blue-600"
         />

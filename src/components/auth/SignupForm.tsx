@@ -13,15 +13,20 @@ export default function SignupForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !password) {
       setError("Email and password are required");
       return;
     }
-    if (findUserByEmail(email)) {
+    if (!agreed) {
+      setError("You must accept the terms to continue");
+      return;
+    }
+    if (findUserByEmail(normalizedEmail)) {
       setError("User already exists");
       return;
     }
-    const user = createUser(email, password);
+    const user = createUser(normalizedEmail, password);
     saveSession({ userId: user.id, email: user.email });
     router.push("/dashboard");
   };
@@ -96,6 +101,7 @@ export default function SignupForm() {
         <input
           type="checkbox"
           checked={agreed}
+          data-testid="auth-signup-terms"
           onChange={(e) => setAgreed(e.target.checked)}
           className="w-4 h-4 mt-0.5 rounded border-gray-300 accent-blue-600 shrink-0"
         />

@@ -1,15 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import HabitForm from "@/components/habits/HabitForm";
-import HabitCard from "@/components/habits/HabitCard";
-import type { Habit } from "@/types/habit";
+import HabitForm from "@/src/components/habits/HabitForm";
+import HabitCard from "@/src/components/habits/HabitCard";
+import type { Habit } from "@/src/types/habit";
 
 vi.mock("@/lib/storage", () => ({
   updateHabit: vi.fn(),
   deleteHabit: vi.fn(),
 }));
 
-beforeEach(() => localStorage.clear());
+beforeEach(() => {
+  localStorage.clear();
+  sessionStorage.clear();
+});
 
 const mockHabit: Habit = {
   id: "1",
@@ -23,7 +27,12 @@ const mockHabit: Habit = {
 
 describe("habit form", () => {
   it("shows a validation error when habit name is empty", async () => {
-    render(<HabitForm onSave={vi.fn()} onCancel={vi.fn()} />);
+    render(
+      React.createElement(HabitForm, {
+        onSave: vi.fn(),
+        onCancel: vi.fn(),
+      }),
+    );
     fireEvent.click(screen.getByTestId("habit-save-button"));
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent(
@@ -34,7 +43,12 @@ describe("habit form", () => {
 
   it("creates a new habit and renders it in the list", async () => {
     const onSave = vi.fn();
-    render(<HabitForm onSave={onSave} onCancel={vi.fn()} />);
+    render(
+      React.createElement(HabitForm, {
+        onSave,
+        onCancel: vi.fn(),
+      }),
+    );
     fireEvent.change(screen.getByTestId("habit-name-input"), {
       target: { value: "Exercise" },
     });
@@ -45,7 +59,11 @@ describe("habit form", () => {
   it("edits an existing habit and preserves immutable fields", async () => {
     const onSave = vi.fn();
     render(
-      <HabitForm initial={mockHabit} onSave={onSave} onCancel={vi.fn()} />,
+      React.createElement(HabitForm, {
+        initial: mockHabit,
+        onSave,
+        onCancel: vi.fn(),
+      }),
     );
     fireEvent.change(screen.getByTestId("habit-name-input"), {
       target: { value: "Drink More Water" },
@@ -59,7 +77,11 @@ describe("habit form", () => {
   it("deletes a habit only after explicit confirmation", async () => {
     const onDelete = vi.fn();
     render(
-      <HabitCard habit={mockHabit} onUpdate={vi.fn()} onDelete={onDelete} />,
+      React.createElement(HabitCard, {
+        habit: mockHabit,
+        onUpdate: vi.fn(),
+        onDelete,
+      }),
     );
     fireEvent.click(screen.getByTestId("habit-delete-drink-water"));
     expect(onDelete).not.toHaveBeenCalled();
@@ -69,7 +91,11 @@ describe("habit form", () => {
 
   it("toggles completion and updates the streak display", async () => {
     render(
-      <HabitCard habit={mockHabit} onUpdate={vi.fn()} onDelete={vi.fn()} />,
+      React.createElement(HabitCard, {
+        habit: mockHabit,
+        onUpdate: vi.fn(),
+        onDelete: vi.fn(),
+      }),
     );
     const streakEl = screen.getByTestId("habit-streak-drink-water");
     expect(streakEl).toHaveTextContent("0");

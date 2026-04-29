@@ -80,7 +80,7 @@ export default function SignupPage() {
 
             <div className="mt-6 text-center">
               <p className="text-xs text-gray-400 mb-3">
-                Already have a ledger?
+                Already have a Account?
               </p>
               <Link
                 href="/login"

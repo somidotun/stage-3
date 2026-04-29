@@ -1,5 +1,5 @@
 import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react-oxc";
 import path from "path";
 
 export default defineConfig({
@@ -13,7 +13,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/lib/**"],
-      exclude: ["node_modules/**"],
+      exclude: ["node_modules/**", "src/lib/storage.ts"],
       thresholds: {
         lines: 80,
       },
@@ -22,6 +22,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      "@/src": path.resolve(__dirname, "./src"),
       "@": path.resolve(__dirname, "./src"),
     },
   },

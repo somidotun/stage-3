@@ -1,25 +1,30 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import SignupForm from "@/components/auth/SignupForm";
-import LoginForm from "@/components/auth/loginform";
-import { saveUsers } from "@/lib/storage";
-import type { User } from "@/types/auth";
+import SignupForm from "@/src/components/auth/SignupForm";
+import LoginForm from "@/src/components/auth/loginform";
+import { saveUsers } from "@/src/lib/storage";
+import type { User } from "@/src/types/auth";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 
-beforeEach(() => localStorage.clear());
+beforeEach(() => {
+  localStorage.clear();
+  sessionStorage.clear();
+});
 
 describe("auth flow", () => {
   it("submits the signup form and creates a session", async () => {
-    render(<SignupForm />);
+    render(React.createElement(SignupForm));
     fireEvent.change(screen.getByTestId("auth-signup-email"), {
       target: { value: "a@test.com" },
     });
     fireEvent.change(screen.getByTestId("auth-signup-password"), {
       target: { value: "pass123" },
     });
+    fireEvent.click(screen.getByTestId("auth-signup-terms"));
     fireEvent.click(screen.getByTestId("auth-signup-submit"));
     await waitFor(() => {
       const session = JSON.parse(
@@ -38,13 +43,14 @@ describe("auth flow", () => {
       createdAt: "",
     };
     saveUsers([existing]);
-    render(<SignupForm />);
+    render(React.createElement(SignupForm));
     fireEvent.change(screen.getByTestId("auth-signup-email"), {
       target: { value: "a@test.com" },
     });
     fireEvent.change(screen.getByTestId("auth-signup-password"), {
       target: { value: "pass123" },
     });
+    fireEvent.click(screen.getByTestId("auth-signup-terms"));
     fireEvent.click(screen.getByTestId("auth-signup-submit"));
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent(
@@ -61,7 +67,7 @@ describe("auth flow", () => {
       createdAt: "",
     };
     saveUsers([existing]);
-    render(<LoginForm />);
+    render(React.createElement(LoginForm));
     fireEvent.change(screen.getByTestId("auth-login-email"), {
       target: { value: "b@test.com" },
     });
@@ -71,14 +77,14 @@ describe("auth flow", () => {
     fireEvent.click(screen.getByTestId("auth-login-submit"));
     await waitFor(() => {
       const session = JSON.parse(
-        localStorage.getItem("habit-tracker-session") ?? "null",
+        sessionStorage.getItem("habit-tracker-session") ?? "null",
       );
       expect(session?.email).toBe("b@test.com");
     });
   });
 
   it("shows an error for invalid login credentials", async () => {
-    render(<LoginForm />);
+    render(React.createElement(LoginForm));
     fireEvent.change(screen.getByTestId("auth-login-email"), {
       target: { value: "nobody@test.com" },
     });
